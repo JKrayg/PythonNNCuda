@@ -1,3 +1,5 @@
-class Flatten():
-    def pr():
-        print("flat")
+from layers.layer import Layer
+
+class Flatten(Layer):
+    def __init__(self):
+        self.previousShape = None
