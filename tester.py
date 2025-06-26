@@ -12,3 +12,14 @@ f1= Flatten()
 f1.previousShape = c1.inputShape
 
 print(d1.actFunc, c1.inputShape, f1.previousShape)
+
+testAct = cp.arange(16).reshape(4, 4)
+testGrad = cp.arange(16).reshape(4, 4)
+
+print("activation: ", testAct)
+print("gradient: ", testGrad)
+l = Layer(actFunc=ReLU, inputShape=4)
+print("gradient wrt weights: ", l.gradientWeights(testAct, testGrad))
+print("gradient wrt bias: ", l.gradientBias(testGrad))
+
+print(d2.toString())

@@ -1,3 +1,3 @@
 class Optimizer:
-    def __init__(self):
-        print("optimizer")
+    def biadUpdate(self, Layer):
+        return 0
