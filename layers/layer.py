@@ -7,6 +7,8 @@ from training.optimizers.optimizer import Optimizer
 
 class Layer:
     def __init__(self, actFunc: Activation, inputShape: Optional[List[int]] = None):
+        self.next = None
+        self.prev = None
         self.actFunc = actFunc
         self.inputShape = inputShape
         self.preactivation = None

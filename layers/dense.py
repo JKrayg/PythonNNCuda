@@ -8,14 +8,33 @@ from training.loss.loss import Loss
 
 class Dense(Layer):
     def __init__(self, numNeurons: int, actFunc: Activation, inputShape: Optional[List[int]] = None, lossFunc: Loss = None):
-        biases = cp.ndarray(numNeurons, 1)
+        biases = cp.ndarray(numNeurons)
         super().__init__(actFunc, inputShape)
         self.numNeurons = numNeurons
         self.lossFunc = lossFunc
         self.numFeatures = inputShape
 
-    def initLayer():
-        return 0
+
+
+
+
+    def initLayer(self, prev: Layer, batchSize: int):
+        actFunc: Activation = self.actFunc
+        self.activation = cp.empty((batchSize, self.numNeurons))
+
+        if prev != None:
+            w, b = actFunc.initWB(prev, self)
+            self.weights = w
+            self.bias = b
+        else:
+            w, b = actFunc.initWB(self.numFeatures, self)
+            self.weights = w
+            self.bias = b
+
+
+
+
+
 
 
     def adamInit(self):
