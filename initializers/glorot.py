@@ -9,18 +9,13 @@ class Glorot:
     def __init__(self):
         print("glorot")
 
-    def initWeights(prev: "Layer", curr: "Layer"):
-        rows = prev.numNeurons
-        cols = curr.numNeurons
-
-        varW = 1 / (rows + cols)
-
-        return cp.random.randn(rows, cols) * math.sqrt(varW)
+    def initWeights(rows: int, cols: int):
+        return cp.random.randn(rows, cols) * math.sqrt(1 / (rows + cols))
     
-    def initWeights(inputSize: int, curr: "Layer"):
-        rows = inputSize
-        cols = curr.numNeurons
+    # def initWeights(inputSize: int, curr: "Layer"):
+    #     rows = inputSize
+    #     cols = curr.numNeurons
 
-        varW = 1 / (rows + cols)
+    #     varW = 1 / (rows + cols)
 
-        return cp.random.randn(rows, cols) * math.sqrt(varW)
+    #     return cp.random.randn(rows, cols) * math.sqrt(varW)

@@ -5,6 +5,7 @@ from typing import List, Optional
 from layers.layer import Layer;
 from activations.activation import Activation
 from training.loss.loss import Loss
+from utils.utils import Utils
 
 class Dense(Layer):
     def __init__(self, numNeurons: int, actFunc: Activation, inputShape: Optional[List[int]] = None, lossFunc: Loss = None):
@@ -15,25 +16,51 @@ class Dense(Layer):
         self.numFeatures = inputShape
 
 
-
-
-
     def initLayer(self, prev: Layer, batchSize: int):
         actFunc: Activation = self.actFunc
         self.activation = cp.empty((batchSize, self.numNeurons))
+        self.preactivation = cp.empty((batchSize, self.numNeurons))
 
         if prev != None:
-            w, b = actFunc.initWB(prev, self)
+            w, b = actFunc.initWB(prev.numNeurons, self.numNeurons)
             self.weights = w
             self.bias = b
         else:
-            w, b = actFunc.initWB(self.numFeatures, self)
+            w, b = actFunc.initWB(self.numFeatures, self.numNeurons)
             self.weights = w
             self.bias = b
 
 
+        if self.normalizer != None:
+            scVar = cp.fill((self.numNeurons, 1), 1)
+            shMeans = cp.ndarray((self.numNeurons, 1))
+            self.normalizer.scale = scVar
+            self.normalizer.shift = shMeans
+            self.normalizer.means = shMeans
+            self.normalizer.variances = scVar
+            self.normalizer.runMeans = shMeans
+            self.normalizer.runVar = scVar
 
+        return self
+    
 
+    def forwardProp(self, prev: Layer):
+        maths = Utils()
+        z = maths.weightedSum(prev.activation, self)
+        self.preactivation = z
+
+        if (self.normalizer != None):
+            z = self.normalizer.normalize(z)
+
+        activated = None
+        if (self.actFunc != None):
+            activated = self.actFunc.execute(z)
+        else:
+            activated = z
+
+        if (self.regularizers != None):
+            for r in self.regularizers:
+                activated = r.regularize(activated)
 
 
 

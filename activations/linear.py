@@ -12,8 +12,8 @@ class Linear(Activation):
     def __init__(self):
         print("linear")
     
-    def initWB(self, prev: "Layer", curr: "Layer"):
-        w = Glorot.initWeights(prev, curr)
-        b = cp.zeros((curr.numNeurons, 1))
+    def initWB(self, rows: int, cols: int):
+        w = Glorot.initWeights(rows, cols)
+        b = cp.zeros((cols, 1))
 
         return w, b

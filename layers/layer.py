@@ -22,7 +22,7 @@ class Layer:
         self.gradientWrtWeights = None
         self.gradientWrtBias = None
         self.regularizers = None
-        self.normalizers = None
+        self.normalizer = None
 
     def gradientWeights(self, activation: cp.ndarray, gradient: cp.ndarray):
         gWrTw = cp.transpose(activation) @ gradient / activation.shape[0]

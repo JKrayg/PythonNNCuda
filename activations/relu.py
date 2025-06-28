@@ -11,8 +11,8 @@ class ReLU(Activation):
     def __init__(self):
         print("relu")
 
-    def initWB(self, prev: "Layer", curr: "Layer"):
-        w = He.initWeights(prev, curr)
-        b = cp.full((curr.numNeurons, 1), 0.1)
+    def initWB(self, rows: int, cols: int):
+        w = He.initWeights(rows, cols)
+        b = cp.full((cols, 1), 0.1)
 
         return w, b

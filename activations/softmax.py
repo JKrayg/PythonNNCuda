@@ -12,14 +12,14 @@ class Softmax(Activation):
     def __init__(self):
         print("sofmax")
 
-    def initWB(self, prev: "Layer", curr: "Layer"):
-        w = Glorot.initWeights(prev, curr)
-        b = cp.zeros((curr.numNeurons, 1))
+    def initWB(self, rows: int, cols: int):
+        w = Glorot.initWeights(rows, cols)
+        b = cp.zeros((cols, 1))
 
         return w, b
     
-    def initWB(self, inputSize: int, curr: "Layer"):
-        w = Glorot.initWeights(inputSize, curr)
-        b = cp.zeros((curr.numNeurons, 1))
+    # def initWB(self, inputSize: int, curr: "Layer"):
+    #     w = Glorot.initWeights(inputSize, curr)
+    #     b = cp.zeros((curr.numNeurons, 1))
 
-        return w, b
+    #     return w, b
