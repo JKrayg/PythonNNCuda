@@ -3,7 +3,6 @@ from layers.layer import Layer
 class Model:
     def __init__(self):
         self.layers = []
-        print("model")
     
     def addLayer(self, l: Layer):
         numL = len(self.layers)

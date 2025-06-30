@@ -14,7 +14,7 @@ class Tanh(Activation):
 
     def initWB(self, rows: int, cols: int):
         w = Glorot.initWeights(rows, cols)
-        b = cp.zeros((cols, 1))
+        b = cp.zeros((cols))
 
         return w, b
     

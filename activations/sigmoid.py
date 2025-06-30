@@ -12,8 +12,8 @@ class Sigmoid(Activation):
     def __init__(self):
         print("sigmoid")
     
-    def initWB(self, rows: int, cols: int):
+    def initWB(rows: int, cols: int):
         w = Glorot.initWeights(rows, cols)
-        b = cp.zeros((cols, 1))
+        b = cp.zeros((cols))
 
         return w, b

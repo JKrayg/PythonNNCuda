@@ -25,7 +25,7 @@ class Layer:
         self.normalizer = None
 
     def gradientWeights(self, activation: cp.ndarray, gradient: cp.ndarray):
-        gWrTw = cp.transpose(activation) @ gradient / activation.shape[0]
+        gWrTw = (cp.transpose(activation) @ gradient) / activation.shape[0]
         return gWrTw
     
     def gradientBias(self, gradient: cp.ndarray):
@@ -38,15 +38,15 @@ class Layer:
     def toString(self):
         s = ""
         s += "class: " + str(self.__class__.__name__) + "\n"
-        s += "activation func: " + str(self.actFunc)
-        # s += "preactivation: " + self.preactivation.shape + "\n"
-        # s += "activations: " + self.activation + "\n"
-        # s += "weights: " + self.weights + "\n"
-        # s += "bias: " + self.bias + "\n"
-        # s += "weights momentum: " + self.weightsMomentum + "\n"
-        # s += "weights variance: " + self.weightsVariance + "\n"
-        # s += "bias momentum: " + self.biasMomentum + "\n"
-        # s += "bias variance: " + self.biasVariance + "\n"
+        s += "activation func: " + str(self.actFunc.__qualname__) + "\n"
+        s += "preactivation: " + str(self.preactivation.shape) + "\n"
+        s += "activations: " + str(self.activation.shape) + "\n"
+        s += "weights: " + str(self.weights.shape) + "\n"
+        s += "bias: " + str(self.bias.shape) + "\n"
+        s += "weights momentum: " + str(self.weightsMomentum.shape) + "\n"
+        s += "weights variance: " + str(self.weightsVariance.shape) + "\n"
+        s += "bias momentum: " + str(self.biasMomentum.shape) + "\n"
+        s += "bias variance: " + str(self.biasVariance.shape) + "\n"
         # s += "gradient wrt weights: " + self.gradientWrtWeights + "\n"
         # s += "gradient wrt bias: " + self.gradientWrtBias
 

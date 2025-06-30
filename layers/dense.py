@@ -9,7 +9,6 @@ from utils.utils import Utils
 
 class Dense(Layer):
     def __init__(self, numNeurons: int, actFunc: Activation, inputShape: Optional[List[int]] = None, lossFunc: Loss = None):
-        biases = cp.ndarray(numNeurons)
         super().__init__(actFunc, inputShape)
         self.numNeurons = numNeurons
         self.lossFunc = lossFunc
@@ -22,6 +21,7 @@ class Dense(Layer):
         self.preactivation = cp.empty((batchSize, self.numNeurons))
 
         if prev != None:
+            print(self.numNeurons)
             w, b = actFunc.initWB(prev.numNeurons, self.numNeurons)
             self.weights = w
             self.bias = b
@@ -34,27 +34,47 @@ class Dense(Layer):
         if self.normalizer != None:
             scVar = cp.fill((self.numNeurons, 1), 1)
             shMeans = cp.ndarray((self.numNeurons, 1))
-            self.normalizer.scale = scVar
-            self.normalizer.shift = shMeans
-            self.normalizer.means = shMeans
-            self.normalizer.variances = scVar
-            self.normalizer.runMeans = shMeans
-            self.normalizer.runVar = scVar
+            self.normalizer.scale = \
+                self.normalizer.variances = \
+                self.normalizer.runVar = scVar
+            self.normalizer.shift = \
+                self.normalizer.means = \
+                self.normalizer.runMeans = shMeans
+            
 
         return self
     
 
-    def forwardProp(self, prev: Layer):
+    def adamInit(self):
+        w = cp.zeros((self.weights.shape[0], self.weights.shape[1]))
+        b = cp.zeros((self.bias.shape[0]))
+
+        print(w)
+
+        self.weightsMomentum = self.weightsVariance = w
+        self.biasMomentum = self.biasVariance = b
+
+        norm = self.normalizer
+
+        if (norm != None):
+            shift = cp.ndarray(norm.shift[0], norm.shift[1])
+            scale = cp.ndarray(norm.scale[0], norm.scale[1])
+
+            norm.shiftMomentum = norm.shiftVariance = shift
+            norm.scaleMomentum = norm.scaleVariance = scale
+
+    
+    def forwardProp(self):
         maths = Utils()
-        z = maths.weightedSum(prev.activation, self)
+        z: cp.ndarray = maths.weightedSum(self.prev.activation, self)
         self.preactivation = z
 
         if (self.normalizer != None):
             z = self.normalizer.normalize(z)
 
-        activated = None
+        activated: cp.ndarray
         if (self.actFunc != None):
-            activated = self.actFunc.execute(z)
+            activated = self.actFunc.activate(z)
         else:
             activated = z
 
@@ -62,24 +82,44 @@ class Dense(Layer):
             for r in self.regularizers:
                 activated = r.regularize(activated)
 
+        self.activation = activated
 
 
-    def adamInit(self):
-        w = cp.ndarray(self.weights[0], self.weights[1])
-        b = cp.ndarray(self.bias[0], self.bias[1])
+    def getGradients(self, gradient: cp.ndarray, data: cp.ndarray):
+        gradW: cp.ndarray
+        gradB: cp.ndarray
+        grad: cp.ndarray
 
-        self.weightsMomentum(w)
-        self.weightsVariance(w)
-        self.biasMomentum(b)
-        self.biasVariance(b)
+        if (self.normalizer != None):
+            norm = self.normalizer
+            grad = norm.gradientPreBN()
+            norm.shiftGradient = norm.getShiftGrad(gradient)
+            norm.scaleGradient = norm.getScaleGrad(gradient)
+        else:
+            grad = gradient
+        
+        if (self.next == None):
+            gradW = self.gradientWeights(self.prev.activation, gradient)
+            gradB = self.gradientBias(gradient)
+        else:
+            p: Layer
+            if (self.prev != None):
+                p = self.prev
+            else:
+                p = Layer()
+                p.activation = data
 
-        norm = self.normalizers
+            gradW = self.gradientWeights(self.prev.activation, gradient)
+            gradB = self.gradientBias(gradient)
+         
 
-        if (norm != None):
-            shift = cp.ndarray(norm.shift[0], norm.shift[1])
-            scale = cp.ndarray(norm.scale[0], norm.scale[1])
+        # bad
+        if (self.regularizers != None):
+            for r in self.regularizers:
+                gradW = gradW + r.regularize(self.weights)
+                break
 
-            norm.shiftMomentum = shift
-            norm.shiftVariance = shift
-            norm.scaleMomentum = scale
-            norm.scaleVariance = scale
+
+        self.gradientWrtWeights = gradW
+        self.gradientWrtBias = gradB
+        return 0

@@ -6,5 +6,5 @@ class Utils:
     def __inti__():
         print("utils")
 
-    def weightedSum(activation: cp.ndarray, layer: Layer):
+    def weightedSum(self, activation: cp.ndarray, layer: Layer):
         return activation @ layer.weights + layer.bias.transpose()
