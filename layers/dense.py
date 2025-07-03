@@ -2,6 +2,7 @@ import cupy as cp;
 import numpy as np
 
 from typing import List, Optional
+from layers.flatten import Flatten
 from layers.layer import Layer;
 from activations.activation import Activation
 from training.loss.loss import Loss
@@ -21,7 +22,6 @@ class Dense(Layer):
         self.preactivation = cp.empty((batchSize, self.numNeurons))
 
         if prev != None:
-            print(self.numNeurons)
             w, b = actFunc.initWB(prev.numNeurons, self.numNeurons)
             self.weights = w
             self.bias = b
@@ -49,7 +49,6 @@ class Dense(Layer):
         w = cp.zeros((self.weights.shape[0], self.weights.shape[1]))
         b = cp.zeros((self.bias.shape[0]))
 
-        print(w)
 
         self.weightsMomentum = self.weightsVariance = w
         self.biasMomentum = self.biasVariance = b
@@ -86,6 +85,7 @@ class Dense(Layer):
 
 
     def getGradients(self, gradient: cp.ndarray, data: cp.ndarray):
+        print("yes")
         gradW: cp.ndarray
         gradB: cp.ndarray
         grad: cp.ndarray
@@ -122,4 +122,16 @@ class Dense(Layer):
 
         self.gradientWrtWeights = gradW
         self.gradientWrtBias = gradB
-        return 0
+        print(self.prev)
+
+        if (self.prev != None):
+            gradWrtPreAct: cp.ndarray
+            g = grad @ self.weights.transpose()
+            if (not isinstance(self.prev, Flatten)):
+                gradWrtPreAct = self.prev.actFunc.gradient(
+                    self.prev.preactivation, g)
+            else:
+                gradWrtPreAct = self.prev.reshapeGrad(g)
+                
+            
+            # self.prev.getGradients(gradWrtPreAct, data)

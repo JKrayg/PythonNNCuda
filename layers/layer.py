@@ -6,7 +6,7 @@ from training.loss.loss import Loss
 from training.optimizers.optimizer import Optimizer
 
 class Layer:
-    def __init__(self, actFunc: Activation, inputShape: Optional[List[int]] = None):
+    def __init__(self, actFunc: Optional[Activation] = None, inputShape: Optional[List[int]] = None):
         self.next = None
         self.prev = None
         self.actFunc = actFunc

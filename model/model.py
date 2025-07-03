@@ -1,3 +1,4 @@
+from data.data import Data
 from layers.layer import Layer
 
 class Model:
@@ -12,3 +13,5 @@ class Model:
             l.prev = p
         
         self.layers.append(l)
+
+    # def fit(data: Data, epochs: int, batchSize: int = 1):

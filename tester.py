@@ -1,5 +1,7 @@
 import cupy as cp
+import numpy as np
 from activations.sigmoid import Sigmoid
+from data.data import Data
 from layers import *
 from activations import ReLU
 from model.model import Model
@@ -29,7 +31,10 @@ d2.adamInit()
 d3.initLayer(d2, 32)
 d3.adamInit()
 
-d2.getGradients(cp.zeros((32, 8)), cp.ones((32, 8)))
+d3.getGradients(cp.zeros((32, 8)), cp.zeros((32, 8)))
+
+data = Data(np.zeros((32, 8)), np.array(["z", "fi", "t", "fi", "t", "fi", "h", "ft", "fi", "j", "q", "t"]))
+
 
 
 # for l in model_.layers:
