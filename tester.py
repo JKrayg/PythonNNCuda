@@ -6,6 +6,7 @@ from layers import *
 from activations import ReLU
 from model.model import Model
 from training.loss.catCrossEntropy import CatCrossEntropy
+import time
 
 model_ = Model()
 
@@ -15,7 +16,6 @@ d3 = Dense(8, actFunc=Sigmoid, lossFunc=CatCrossEntropy)
 c1 = Conv2D(10, actFunc=ReLU, inputShape=[3, 28, 28], kernelShape=[3, 3], stride=1, padding="same")
 c2 = Conv2D(10, actFunc=ReLU, kernelShape=[3, 3], stride=1, padding="same")
 f1 = Flatten()
-f1.previousShape = c1.inputShape
 
 # model_.addLayer(c1)
 # model_.addLayer(c2)
@@ -31,11 +31,13 @@ d2.adamInit()
 d3.initLayer(d2, 32)
 d3.adamInit()
 
-d3.getGradients(cp.zeros((32, 8)), cp.zeros((32, 8)))
-
-data = Data(np.zeros((32, 8)), np.array(["z", "fi", "t", "fi", "t", "fi", "h", "ft", "fi", "j", "q", "t"]))
 
 
+data = Data(np.zeros((32, 8)), np.array(["z", "fi", "t", "fi", "t", "fi", "h", "ft"]))
+data.zScore()
+d3.getGradients(data.data, data.labels)
+
+model_.fit(data, 1, 1)
 
 # for l in model_.layers:
 #     print(l.toString())

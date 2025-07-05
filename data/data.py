@@ -1,5 +1,9 @@
 import cupy as cp
 import numpy as np
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from utils.utils import Utils
 
 
 class Data:
@@ -15,19 +19,26 @@ class Data:
         self.labels = cp.array([self.labelMap[labels[i]] for i in range(len(labels))])
         
         if (len(self.classes) > 2):
-            self.oneHot(self.labels)
+            self.labels = self.oneHot(self.labels)
         
-        print(self.labelMap)
-        print(self.classes)
-        print(self.labels)
+        # print(self.labelMap)
+        # print(self.classes)
+        # print(self.labels)
 
     def oneHot(self, labels: cp.array):
         encoded: cp.ndarray = cp.ndarray((len(labels), len(self.classes)))
         for i in range(len(labels)):
             curr: cp.ndarray = cp.zeros((len(self.classes)))
-            print(curr[labels[i]])
             curr[labels[i]] = 1.0
             encoded[i] = curr
 
-        print(encoded)
+        return encoded
+    
+    def zScore(self):
+        # maths = Utils()
+        cols = len(self.data[0])
+        rows = len(self.data)
+        
+        # print(self.data)
+        
 

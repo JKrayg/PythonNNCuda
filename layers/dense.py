@@ -9,20 +9,21 @@ from training.loss.loss import Loss
 from utils.utils import Utils
 
 class Dense(Layer):
-    def __init__(self, numNeurons: int, actFunc: Activation, inputShape: Optional[List[int]] = None, lossFunc: Loss = None):
+    def __init__(self, numNeurons: int, actFunc: Activation,
+                 inputShape: Optional[List[int]] = None, lossFunc: Loss = None):
         super().__init__(actFunc, inputShape)
         self.numNeurons = numNeurons
         self.lossFunc = lossFunc
         self.numFeatures = inputShape
 
 
-    def initLayer(self, prev: Layer, batchSize: int):
+    def initLayer(self, prevNumNeur: int, batchSize: int):
         actFunc: Activation = self.actFunc
         self.activation = cp.empty((batchSize, self.numNeurons))
         self.preactivation = cp.empty((batchSize, self.numNeurons))
 
-        if prev != None:
-            w, b = actFunc.initWB(prev.numNeurons, self.numNeurons)
+        if prevNumNeur != None:
+            w, b = actFunc.initWB(prevNumNeur, self.numNeurons)
             self.weights = w
             self.bias = b
         else:
@@ -85,7 +86,6 @@ class Dense(Layer):
 
 
     def getGradients(self, gradient: cp.ndarray, data: cp.ndarray):
-        print("yes")
         gradW: cp.ndarray
         gradB: cp.ndarray
         grad: cp.ndarray
