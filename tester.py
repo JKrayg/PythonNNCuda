@@ -40,7 +40,7 @@ data.split(0.1, 0.1)
 # data.zScore()
 # d3.getGradients(data.data, data.labels)
 model_.compile(optimizer=Adam(0.001))
-model_.fit(data, 1, 1)
+model_.fit(data, 10, 32)
 
 # for l in model_.layers:
 #     print(l.toString())

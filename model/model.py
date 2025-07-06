@@ -6,7 +6,9 @@ from layers.layer import Layer
 from training.callbacks.callback import Callback
 from training.callbacks.earlyStopping import EarlyStopping
 from training.callbacks.lrScheduler import LRScheduler
+from training.loss.loss import Loss
 from training.metrics.metric import Metric
+from training.normalization.batchNorm import BatchNormalization
 from training.optimizers.adam import Adam
 from training.optimizers.optimizer import Optimizer
 from training.optimizers.sgd import SGD
@@ -40,6 +42,7 @@ class Model:
 
 
     def fit(self, data: Data, epochs: int, batchSize: int = 1):
+        out: Layer = self.layers[len(self.layers) - 1]
         trainData = data.trainData
         trainLabels = data.trainLabels
         # testData = data.testData
@@ -81,6 +84,7 @@ class Model:
                 trData.reshape(trainShape)
             
             rows = trainShape[0]
+            print(rows)
 
             dataBatch: cp.ndarray = None
             labelBatch: cp.ndarray = None
@@ -88,6 +92,7 @@ class Model:
             for k in range(rows - (rows % batchSize)):
                 dataBatch = trData[k:(k + batchSize)]
                 labelBatch = trLabels[k:(k + batchSize)]
+                out.labels = labelBatch
                 self.forwardPass(dataBatch, labelBatch)
                 self.backprop(dataBatch, labelBatch)
 
@@ -96,9 +101,10 @@ class Model:
             
             # last batch - bad
             if(rows % batchSize != 0):
-                dataBatch = trData[batchSize - (rows % batchSize), batchSize]
-                labelBatch = trLabels[batchSize - (rows % batchSize), batchSize]
+                dataBatch = trData[batchSize - (rows % batchSize): batchSize]
+                labelBatch = trLabels[batchSize - (rows % batchSize): batchSize]
                 self.forwardPass(dataBatch, labelBatch)
+                out.labels = labelBatch
                 self.backprop(dataBatch, labelBatch)
 
                 if isinstance(self.optimizer, Adam):
@@ -115,13 +121,40 @@ class Model:
                   "~ val accuracy:", valAcc)
             print("____________________________________________________________")
 
+            # callbacks and lr scheduler
 
-    def forwardPass(self, dataBatch, labelBatch):
-        return 0
+
+    def forwardPass(self, data, labels):
+        dummy: Layer = Layer()
+        dummy.activation = data
+        self.layers[0].forwardProp(dummy)
+        for i in range(len(self.layers)):
+            curr = self.layers[i]
+            prev = self.layers[i - 1]
+
+            curr.forwardProp(prev)
+
+            if (curr.next is None):
+                curr.labels = labels
     
-    def backprop(self, dataBatch, labelBatch):
-        self.lossHistory = cp.append(self.lossHistory, random.randint(0, 9))
-        return 0
+    def backprop(self, data, labels):
+        out: Layer = self.layers[len(self.layers) - 1]
+        lossFunc: Loss = out.lossFunc
+        loss: float = lossFunc.execute(out.activation, out.labels)
+        self.lossHistory = cp.append(self.lossHistory, loss)
+
+        gWrtO = lossFunc.gradient(out.activation, out.labels)
+
+        out.getGradients(out.prev, gWrtO, data)
+
+        for l in self.layers:
+            l.updateWeights(self.optimizer)
+            l.updateBias(self.optimizer)
+
+            if (isinstance(l.normalizer, BatchNormalization)):
+                l.normalizer.updateShift(self.optimizer)
+                l.normalizer.updateScale(self.optimizer)
+
 
     def lozz(self, data, labels):
         return 1.5

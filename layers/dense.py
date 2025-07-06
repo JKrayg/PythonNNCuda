@@ -64,7 +64,7 @@ class Dense(Layer):
             norm.scaleMomentum = norm.scaleVariance = scale
 
     
-    def forwardProp(self):
+    def forwardProp(self, prev: Layer):
         maths = Utils()
         z: cp.ndarray = maths.weightedSum(self.prev.activation, self)
         self.preactivation = z
