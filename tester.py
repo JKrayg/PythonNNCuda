@@ -1,4 +1,3 @@
-import cupy as cp
 import numpy as np
 from activations.sigmoid import Sigmoid
 from data.data import Data
@@ -7,6 +6,8 @@ from activations import ReLU
 from model.model import Model
 from training.loss.catCrossEntropy import CatCrossEntropy
 import time
+
+from training.optimizers.adam import Adam
 
 model_ = Model()
 
@@ -24,19 +25,21 @@ model_.addLayer(d1)
 model_.addLayer(d2)
 model_.addLayer(d3)
 
-d1.initLayer(None, 32)
-d1.adamInit()
-d2.initLayer(d1, 32)
-d2.adamInit()
-d3.initLayer(d2, 32)
-d3.adamInit()
+# d1.initLayer(None, 32)
+# d1.adamInit()
+# d2.initLayer(d1.numNeurons, 32)
+# d2.adamInit()
+# d3.initLayer(d2.numNeurons, 32)
+# d3.adamInit()
 
 
 
-data = Data(np.zeros((32, 8)), np.array(["z", "fi", "t", "fi", "t", "fi", "h", "ft"]))
-data.zScore()
-d3.getGradients(data.data, data.labels)
-
+data = Data(np.random.randint(0, 10, size=(10, 10)), np.array(["a", "b", "c", "d", "d", "c", "b", "a",
+                                                              "a", "b"]))
+data.split(0.1, 0.1)
+# data.zScore()
+# d3.getGradients(data.data, data.labels)
+model_.compile(optimizer=Adam(0.001))
 model_.fit(data, 1, 1)
 
 # for l in model_.layers:

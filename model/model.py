@@ -1,15 +1,21 @@
+import random
 import cupy as cp
 
 from data.data import Data
 from layers.layer import Layer
+from training.callbacks.callback import Callback
 from training.callbacks.earlyStopping import EarlyStopping
 from training.callbacks.lrScheduler import LRScheduler
+from training.metrics.metric import Metric
 from training.optimizers.adam import Adam
+from training.optimizers.optimizer import Optimizer
+from training.optimizers.sgd import SGD
 
 class Model:
     def __init__(self):
         self.layers = []
     
+
     def addLayer(self, l: Layer):
         numL = len(self.layers)
         if numL > 0:
@@ -19,64 +25,108 @@ class Model:
         
         self.layers.append(l)
 
+
     def shuffle(self, data: cp.ndarray, labels: cp.ndarray):
         indcs = cp.random.permutation(data.shape[0])
 
         return data[indcs], labels[indcs]
+    
+
+    def compile(self, optimizer: Optimizer = SGD(),
+                callbacks: list[Callback] = None, metrics: Metric = None):
+        self.optimizer = optimizer
+        self.callbacks = callbacks
+        self.metrics = metrics
+
 
     def fit(self, data: Data, epochs: int, batchSize: int = 1):
-        trainData: cp.ndarray
-        trainLabels: cp.ndarray
-        testData: cp.ndarray
-        testLabels: cp.ndarray
-        valData: cp.ndarray
-        valLabels: cp.ndarray
+        trainData = data.trainData
+        trainLabels = data.trainLabels
+        # testData = data.testData
+        # testLabels = data.testLabels
+        valData = data.valData
+        valLabels = data.valLabels
 
         for i in range(len(self.layers)):
-            prevNumNeur: int = None
-            curr = self.layers[i + 1]
+            prevNumNeurs: int
+            curr = self.layers[i]
             if i != 0:
-                prevNumNeur = self.layers[i - 1].numNeurons
+                prevNumNeurs = curr.prev.numNeurons
+            else:
+                prevNumNeurs = curr.numFeatures
 
-            curr.initLayer(prevNumNeur, batchSize)
+            curr.initLayer(prevNumNeurs, batchSize)
 
             if isinstance(self.optimizer, Adam):
-                curr.initForAdam()
+                curr.adamInit()
 
 
         reshape = False
         trainShape = trainData.shape
 
-        # arrtoShufl: list[cp.ndarray]
-
-        # if (len(trainShape) == 2):
-
-        # erly: EarlyStopping = None
-        # lrSch: LRScheduler = None
-
-        # if (self.callbacks != None):
-        #     for c in self.callbacks:
-        #         if (isinstance(lrSch, LRScheduler)):
-        #             lrSch = 
-
         for i in range(epochs):
-            print("epoch", str(i + 1), "/", epochs)
-            self.lossHistory = None
-            trData, trLabels
+            print("epoch", (i + 1), "/", epochs)
+            self.lossHistory = cp.empty(0)
+            trData = trLabels = None
 
             if (len(trainShape) == 2):
                 trData, trLabels = self.shuffle(trainData, trainLabels)
             else:
+                reshape = True
                 trData, trLabels = self.shuffle(
                     trainData.reshape(trainShape[0], trainShape[1]*trainShape[2]),
                     trainLabels)
-                
-            print(trData)
-            print(trLabels)
 
             if (reshape):
                 trData.reshape(trainShape)
             
+            rows = trainShape[0]
 
+            dataBatch: cp.ndarray = None
+            labelBatch: cp.ndarray = None
+
+            for k in range(rows - (rows % batchSize)):
+                dataBatch = trData[k:(k + batchSize)]
+                labelBatch = trLabels[k:(k + batchSize)]
+                self.forwardPass(dataBatch, labelBatch)
+                self.backprop(dataBatch, labelBatch)
+
+                if isinstance(self.optimizer, Adam):
+                    self.optimizer.updateCount += 1
+            
+            # last batch - bad
+            if(rows % batchSize != 0):
+                dataBatch = trData[batchSize - (rows % batchSize), batchSize]
+                labelBatch = trLabels[batchSize - (rows % batchSize), batchSize]
+                self.forwardPass(dataBatch, labelBatch)
+                self.backprop(dataBatch, labelBatch)
+
+                if isinstance(self.optimizer, Adam):
+                    self.optimizer.updateCount += 1
+
+            self.loss = cp.sum(self.lossHistory) / self.lossHistory.shape[0]
+            self.valLoss = self.lozz(valData, valLabels)
+            acc: float = self.accuracy(trData, trLabels)
+            valAcc: float = self.accuracy(valData, valLabels)
+
+            print("loss:", self.loss,
+                  "~ accuracy:", acc,
+                  "~ val loss:", self.valLoss,
+                  "~ val accuracy:", valAcc)
+            print("____________________________________________________________")
+
+
+    def forwardPass(self, dataBatch, labelBatch):
+        return 0
+    
+    def backprop(self, dataBatch, labelBatch):
+        self.lossHistory = cp.append(self.lossHistory, random.randint(0, 9))
+        return 0
+
+    def lozz(self, data, labels):
+        return 1.5
+    
+    def accuracy(self, data, labels):
+        return random.uniform(0, 9)
 
 

@@ -40,5 +40,18 @@ class Data:
         rows = len(self.data)
         
         # print(self.data)
+
+    def split(self, testSize, valSize):
+        rows = self.data.shape[0]
+        testSetSize = rows * testSize
+        valSetSize = rows * valSize
+        trainSetSize = rows - (testSetSize + valSetSize)
+
+        self.trainData = self.data[0:trainSetSize]
+        self.testData = self.data[trainSetSize:(trainSetSize+testSetSize)]
+        self.valData = self.data[(trainSetSize+testSetSize):rows]
+        self.trainLabels = self.labels[0:trainSetSize]
+        self.testLabels = self.labels[trainSetSize:(trainSetSize+testSetSize)]
+        self.valLabels = self.labels[(trainSetSize+testSetSize):rows]
         
 
