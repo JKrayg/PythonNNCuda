@@ -7,4 +7,8 @@ class Utils:
         print("utils")
 
     def weightedSum(self, activation: cp.ndarray, layer: Layer):
-        return activation @ layer.weights + layer.bias.transpose()
+        # print("self:", layer.numNeurons)
+        # print("----", activation.shape)
+        # print("_____", layer.weights.shape)
+        # print("+++++", layer.bias.shape)
+        return activation @ layer.weights + layer.bias

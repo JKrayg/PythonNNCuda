@@ -84,7 +84,6 @@ class Model:
                 trData.reshape(trainShape)
             
             rows = trainShape[0]
-            print(rows)
 
             dataBatch: cp.ndarray = None
             labelBatch: cp.ndarray = None
@@ -110,6 +109,7 @@ class Model:
                 if isinstance(self.optimizer, Adam):
                     self.optimizer.updateCount += 1
 
+            print()
             self.loss = cp.sum(self.lossHistory) / self.lossHistory.shape[0]
             self.valLoss = self.lozz(valData, valLabels)
             acc: float = self.accuracy(trData, trLabels)
@@ -127,25 +127,25 @@ class Model:
     def forwardPass(self, data, labels):
         dummy: Layer = Layer()
         dummy.activation = data
+        self.layers[0].prev = dummy
         self.layers[0].forwardProp(dummy)
-        for i in range(len(self.layers)):
+        for i in range(1, len(self.layers)):
             curr = self.layers[i]
             prev = self.layers[i - 1]
 
             curr.forwardProp(prev)
 
-            if (curr.next is None):
-                curr.labels = labels
+            # if (curr.next is None):
+            #     curr.labels = labels
     
     def backprop(self, data, labels):
         out: Layer = self.layers[len(self.layers) - 1]
         lossFunc: Loss = out.lossFunc
-        loss: float = lossFunc.execute(out.activation, out.labels)
+        loss: float = lossFunc.execute(out.activation, labels)
         self.lossHistory = cp.append(self.lossHistory, loss)
+        gWrtO = lossFunc.gradient(out.activation, labels)
 
-        gWrtO = lossFunc.gradient(out.activation, out.labels)
-
-        out.getGradients(out.prev, gWrtO, data)
+        out.getGradients(gWrtO, data)
 
         for l in self.layers:
             l.updateWeights(self.optimizer)

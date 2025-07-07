@@ -6,6 +6,7 @@ from layers.flatten import Flatten
 from layers.layer import Layer;
 from activations.activation import Activation
 from training.loss.loss import Loss
+from training.optimizers.optimizer import Optimizer
 from utils.utils import Utils
 
 class Dense(Layer):
@@ -53,6 +54,7 @@ class Dense(Layer):
 
         self.weightsMomentum = self.weightsVariance = w
         self.biasMomentum = self.biasVariance = b
+
 
         norm = self.normalizer
 
@@ -122,9 +124,9 @@ class Dense(Layer):
 
         self.gradientWrtWeights = gradW
         self.gradientWrtBias = gradB
-        print(self.prev)
+        # print("----------------", self.gradientWrtWeights)
 
-        if (self.prev != None):
+        if (self.prev.actFunc != None):
             gradWrtPreAct: cp.ndarray
             g = grad @ self.weights.transpose()
             if (not isinstance(self.prev, Flatten)):
@@ -134,4 +136,7 @@ class Dense(Layer):
                 gradWrtPreAct = self.prev.reshapeGrad(g)
                 
             
-            # self.prev.getGradients(gradWrtPreAct, data)
+            self.prev.getGradients(gradWrtPreAct, data)
+
+    def updateWeights(self, o: Optimizer):
+        self.weights = o.weightsUpdate(self)

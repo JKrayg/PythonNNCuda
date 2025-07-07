@@ -29,7 +29,7 @@ class Layer:
         return gWrTw
     
     def gradientBias(self, gradient: cp.ndarray):
-        sum_ = gradient.sum(axis=0).reshape(gradient.shape[1], 1) / gradient.shape[0]
+        sum_ = gradient.sum(axis=0).reshape(gradient.shape[1]) / gradient.shape[0]
         return sum_
     
     def updateBias(self, o: Optimizer):

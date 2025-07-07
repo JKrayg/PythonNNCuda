@@ -1,3 +1,4 @@
+import math
 import cupy as cp
 
 from activations.activation import Activation
@@ -11,6 +12,9 @@ if TYPE_CHECKING:
 class Sigmoid(Activation):
     def __init__(self):
         print("sigmoid")
+
+    def activate(z: cp.ndarray):
+        return 1 / (1 + cp.exp(-z))
     
     def initWB(rows: int, cols: int):
         w = Glorot.initWeights(rows, cols)

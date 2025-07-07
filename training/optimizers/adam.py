@@ -1,3 +1,5 @@
+import math
+import cupy as cp
 from training.optimizers.optimizer import Optimizer
 
 
@@ -9,3 +11,30 @@ class Adam(Optimizer):
         self.varianceDecay = varianceDecay
         self.epsilon = epsilon
         self.updateCount = 1
+
+    def weightsUpdate(self, l):
+        mBiasCor = 1 - math.pow(self.momentumDecay, self.updateCount)
+        vBiasCor = 1 - math.pow(self.varianceDecay, self.updateCount)
+
+        l.weightsMomentum = (l.weightsMomentum * self.momentumDecay) \
+            + (l.gradientWrtWeights * (1 - self.momentumDecay))
+        
+        l.weightsVariance = (l.weightsVariance * self.varianceDecay) \
+            + (l.gradientWrtWeights * l.gradientWrtWeights) * (1 - self.varianceDecay)
+        
+        
+        return (((l.weights - l.weightsMomentum) / mBiasCor) / cp.power(l.weightsVariance / vBiasCor, 0.5) 
+                + self.epsilon) * self.learningRate
+    
+    def biasUpdate(self, l):
+        mBiasCor = 1 - math.pow(self.momentumDecay, self.updateCount)
+        vBiasCor = 1 - math.pow(self.varianceDecay, self.updateCount)
+
+        l.biasMomentum = (l.biasMomentum * self.momentumDecay) \
+            + (l.gradientWrtBias * (1 - self.momentumDecay))
+        
+        l.biasVariance = (l.biasVariance * self.varianceDecay) \
+            + (l.gradientWrtBias * l.gradientWrtBias) * (1 - self.varianceDecay)
+        
+        return (((l.bias - l.biasMomentum) / mBiasCor) / cp.power(l.biasVariance / vBiasCor, 0.5) 
+                + self.epsilon) * self.learningRate
