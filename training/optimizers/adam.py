@@ -13,6 +13,7 @@ class Adam(Optimizer):
         self.updateCount = 1
 
     def weightsUpdate(self, l):
+        # print("weights ", l.weights)
         mBiasCor = 1 - math.pow(self.momentumDecay, self.updateCount)
         vBiasCor = 1 - math.pow(self.varianceDecay, self.updateCount)
 
@@ -22,9 +23,11 @@ class Adam(Optimizer):
         l.weightsVariance = (l.weightsVariance * self.varianceDecay) \
             + (l.gradientWrtWeights * l.gradientWrtWeights) * (1 - self.varianceDecay)
         
-        
-        return (((l.weights - l.weightsMomentum) / mBiasCor) / cp.power(l.weightsVariance / vBiasCor, 0.5) 
-                + self.epsilon) * self.learningRate
+        # print("werwer", l.weights - ( (l.weightsMomentum / mBiasCor) * self.learningRate ) / ( cp.sqrt(l.weightsVariance / vBiasCor) + self.epsilon ))
+        # return ((l.weights - l.weightsMomentum) / mBiasCor / cp.power(l.weightsVariance / vBiasCor, 0.5) 
+        #         + self.epsilon) * self.learningRate
+    
+        return l.weights - ( (l.weightsMomentum / mBiasCor) * self.learningRate ) / ( cp.sqrt(l.weightsVariance / vBiasCor) + self.epsilon )
     
     def biasUpdate(self, l):
         mBiasCor = 1 - math.pow(self.momentumDecay, self.updateCount)

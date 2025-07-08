@@ -9,7 +9,6 @@ class CatCrossEntropy(Loss):
 
     def execute(activation: cp.ndarray, labels: cp.ndarray):
         error = labels * cp.log(activation)
-
         return -(cp.sum(error) / activation.shape[0])
     
     def gradient(activation: cp.ndarray, labels: cp.ndarray):

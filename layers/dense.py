@@ -76,14 +76,13 @@ class Dense(Layer):
 
         activated: cp.ndarray
         if (self.actFunc != None):
-            activated = self.actFunc.activate(z)
+            activated = self.actFunc.activate(z) 
         else:
             activated = z
 
         if (self.regularizers != None):
             for r in self.regularizers:
                 activated = r.regularize(activated)
-
         self.activation = activated
 
 

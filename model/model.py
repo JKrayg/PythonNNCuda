@@ -102,14 +102,13 @@ class Model:
             if(rows % batchSize != 0):
                 dataBatch = trData[batchSize - (rows % batchSize): batchSize]
                 labelBatch = trLabels[batchSize - (rows % batchSize): batchSize]
-                self.forwardPass(dataBatch, labelBatch)
                 out.labels = labelBatch
+                self.forwardPass(dataBatch, labelBatch)
                 self.backprop(dataBatch, labelBatch)
 
                 if isinstance(self.optimizer, Adam):
                     self.optimizer.updateCount += 1
 
-            print()
             self.loss = cp.sum(self.lossHistory) / self.lossHistory.shape[0]
             self.valLoss = self.lozz(valData, valLabels)
             acc: float = self.accuracy(trData, trLabels)

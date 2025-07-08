@@ -26,11 +26,12 @@ model_.addLayer(d1)
 model_.addLayer(d2)
 model_.addLayer(d3)
 
-# d1.initLayer(None, 32)
+# d1.initLayer(None, 16)
 # d1.adamInit()
-# d2.initLayer(d1.numNeurons, 32)
+# d2.initLayer(d1.numNeurons, 16)
 # d2.adamInit()
-# d3.initLayer(d2.numNeurons, 32)
+# d3.initLayer(d2.numNeurons, 16)
+
 # d3.adamInit()
 
 iris = load_iris()
