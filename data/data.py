@@ -35,11 +35,10 @@ class Data:
         return encoded
     
     def zScore(self):
-        # maths = Utils()
-        cols = len(self.data[0])
-        rows = len(self.data)
+        mean = cp.mean(self.data, axis=0)
+        std = cp.std(self.data, axis=0)
+        self.data = (self.data - mean) / std
         
-        # print(self.data)
 
     def split(self, testSize, valSize):
         rows = self.data.shape[0]

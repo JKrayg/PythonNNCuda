@@ -40,14 +40,19 @@ data = np.array(iris.data)
 labels = np.array(iris.target)
 
 
-# data = Data(np.random.randint(0, 10, size=(100, 4)), np.array(["b", "b", "c", "d", "d", "c", "b", "b",
-                                                            #   "b", "b"]))
+# data = Data(np.random.rand(4, 4), np.array(["b", "b", "c", "d", "d", "c", "b", "b",
+#                                                               "b", "b"]))
+
+
 
 data = Data(data, labels)
+data.zScore()
 data.split(0.1, 0.1)
-# data.zScore()
+
 # d3.getGradients(data.data, data.labels)
 model_.compile(optimizer=Adam(0.001))
+
+
 model_.fit(data, 10, 16)
 
 # for l in model_.layers:
