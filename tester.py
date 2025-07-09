@@ -13,27 +13,12 @@ from training.optimizers.adam import Adam
 
 model_ = Model()
 
-d1 = Dense(16, actFunc=ReLU, inputShape=4)
-d2 = Dense(32, actFunc=ReLU)
+d1 = Dense(32, actFunc=ReLU, inputShape=4)
+d2 = Dense(64, actFunc=ReLU)
 d3 = Dense(3, actFunc=Softmax, lossFunc=CatCrossEntropy)
-# c1 = Conv2D(10, actFunc=ReLU, inputShape=[3, 28, 28], kernelShape=[3, 3], stride=1, padding="same")
-# c2 = Conv2D(10, actFunc=ReLU, kernelShape=[3, 3], stride=1, padding="same")
-# f1 = Flatten()
-
-# model_.addLayer(c1)
-# model_.addLayer(c2)
-# model_.addLayer(f1)
 model_.addLayer(d1)
 model_.addLayer(d2)
 model_.addLayer(d3)
-
-# d1.initLayer(None, 16)
-# d1.adamInit()
-# d2.initLayer(d1.numNeurons, 16)
-# d2.adamInit()
-# d3.initLayer(d2.numNeurons, 16)
-
-# d3.adamInit()
 
 iris = load_iris()
 
@@ -47,6 +32,7 @@ labels = np.array(iris.target)
 
 
 data = Data(data, labels)
+data.shuffle()
 data.zScore()
 data.split(0.1, 0.1)
 
@@ -54,7 +40,7 @@ data.split(0.1, 0.1)
 model_.compile(optimizer=Adam(0.001))
 
 
-model_.fit(data, 32, 20)
+model_.fit(data, 8, 20)
 
 # for l in model_.layers:
 #     print(l.toString())

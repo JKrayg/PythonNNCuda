@@ -34,6 +34,11 @@ class Data:
 
         return encoded
     
+    def shuffle(self):
+        indcs = cp.random.permutation(self.data.shape[0])
+        self.data = self.data[indcs]
+        self.labels = self.labels[indcs]
+    
     def zScore(self):
         mean = cp.mean(self.data, axis=0)
         std = cp.std(self.data, axis=0)

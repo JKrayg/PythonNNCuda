@@ -115,9 +115,10 @@ class Model:
             valAcc: float = self.accuracy(valData, valLabels)
 
             print("loss:", self.loss,
-                  "~ accuracy:", acc,
+                #   "~ accuracy:", acc,
                   "~ val loss:", self.valLoss,
-                  "~ val accuracy:", valAcc)
+                #   "~ val accuracy:", valAcc
+                )
             print("____________________________________________________________")
 
             # callbacks and lr scheduler
@@ -156,6 +157,8 @@ class Model:
 
 
     def lozz(self, data, labels):
+        # print(data)
+        # print(labels)
         self.forwardPass(data, labels)
         out: Layer = self.layers[len(self.layers) - 1]
         return out.lossFunc.execute(out.activation, labels)
