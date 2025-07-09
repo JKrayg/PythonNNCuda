@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.datasets import load_iris
 from activations.sigmoid import Sigmoid
+from activations.softmax import Softmax
 from data.data import Data
 from layers import *
 from activations import ReLU
@@ -12,9 +13,9 @@ from training.optimizers.adam import Adam
 
 model_ = Model()
 
-d1 = Dense(6, actFunc=ReLU, inputShape=4)
-d2 = Dense(16, actFunc=ReLU)
-d3 = Dense(3, actFunc=Sigmoid, lossFunc=CatCrossEntropy)
+d1 = Dense(16, actFunc=ReLU, inputShape=4)
+d2 = Dense(32, actFunc=ReLU)
+d3 = Dense(3, actFunc=Softmax, lossFunc=CatCrossEntropy)
 # c1 = Conv2D(10, actFunc=ReLU, inputShape=[3, 28, 28], kernelShape=[3, 3], stride=1, padding="same")
 # c2 = Conv2D(10, actFunc=ReLU, kernelShape=[3, 3], stride=1, padding="same")
 # f1 = Flatten()
@@ -53,7 +54,7 @@ data.split(0.1, 0.1)
 model_.compile(optimizer=Adam(0.001))
 
 
-model_.fit(data, 10, 16)
+model_.fit(data, 32, 20)
 
 # for l in model_.layers:
 #     print(l.toString())

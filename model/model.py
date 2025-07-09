@@ -41,7 +41,7 @@ class Model:
         self.metrics = metrics
 
 
-    def fit(self, data: Data, epochs: int, batchSize: int = 1):
+    def fit(self, data: Data, batchSize: int, epochs: int):
         out: Layer = self.layers[len(self.layers) - 1]
         trainData = data.trainData
         trainLabels = data.trainLabels
@@ -156,9 +156,12 @@ class Model:
 
 
     def lozz(self, data, labels):
-        return 1.5
+        self.forwardPass(data, labels)
+        out: Layer = self.layers[len(self.layers) - 1]
+        return out.lossFunc.execute(out.activation, labels)
     
     def accuracy(self, data, labels):
+        # **
         return random.uniform(0, 9)
 
 
