@@ -1,5 +1,6 @@
 import random
 import cupy as cp
+import time
 
 from data.data import Data
 from layers.layer import Layer
@@ -34,7 +35,7 @@ class Model:
         return data[indcs], labels[indcs]
     
 
-    def compile(self, optimizer: Optimizer = SGD(),
+    def compile(self, optimizer: Optimizer = SGD,
                 callbacks: list[Callback] = None, metrics: Metric = None):
         self.optimizer = optimizer
         self.callbacks = callbacks
@@ -68,8 +69,9 @@ class Model:
         trainShape = trainData.shape
 
         for i in range(epochs):
+            # epochStart = time.time()
             print("epoch", (i + 1), "/", epochs)
-            self.lossHistory = cp.empty(0)
+            self.lossHistory = []
             trData = trLabels = None
 
             if (len(trainShape) == 2):
@@ -109,22 +111,27 @@ class Model:
                 if isinstance(self.optimizer, Adam):
                     self.optimizer.updateCount += 1
 
-            self.loss = cp.sum(self.lossHistory) / self.lossHistory.shape[0]
-            self.valLoss = self.lozz(valData, valLabels)
-            acc: float = self.accuracy(trData, trLabels)
-            valAcc: float = self.accuracy(valData, valLabels)
+            his = cp.array(self.lossHistory)
+            self.loss = cp.sum(his) / his.shape[0]
+            # self.valLoss = self.lozz(valData, valLabels)
+            # acc: float = self.accuracy(trData, trLabels)
+            # valAcc: float = self.accuracy(valData, valLabels)
 
             print("loss:", self.loss,
                 #   "~ accuracy:", acc,
-                  "~ val loss:", self.valLoss,
+                #   "~ val loss:", self.valLoss,
                 #   "~ val accuracy:", valAcc
                 )
             print("____________________________________________________________")
+            # epochEnd = time.time()
+            # print(f"epoch time: {epochEnd - epochStart:.4f} seconds")
 
             # callbacks and lr scheduler
 
 
     def forwardPass(self, data, labels):
+        # cp.cuda.Device().synchronize()
+        # forwStart = time.time()
         dummy: Layer = Layer()
         dummy.activation = data
         self.layers[0].prev = dummy
@@ -137,23 +144,31 @@ class Model:
 
             # if (curr.next is None):
             #     curr.labels = labels
+        # cp.cuda.Device().synchronize()
+        # forwEnd = time.time()
+        # print(f"forward time: {forwEnd - forwStart:.4f} seconds")
     
     def backprop(self, data, labels):
+        # cp.cuda.Device().synchronize()
+        # backStart = time.time()
         out: Layer = self.layers[len(self.layers) - 1]
         lossFunc: Loss = out.lossFunc
         loss: float = lossFunc.execute(out.activation, labels)
-        self.lossHistory = cp.append(self.lossHistory, loss)
+        self.lossHistory.append(loss)
         gWrtO = lossFunc.gradient(out.activation, labels)
 
         out.getGradients(gWrtO, data)
 
         for l in self.layers:
-            l.updateWeights(self.optimizer)
-            l.updateBias(self.optimizer)
+            l.updateParams(self.optimizer)
 
             if (isinstance(l.normalizer, BatchNormalization)):
                 l.normalizer.updateShift(self.optimizer)
                 l.normalizer.updateScale(self.optimizer)
+        
+        # cp.cuda.Device().synchronize()
+        # backEnd = time.time()
+        # print(f"backward time: {backEnd - backStart:.4f} seconds")
 
 
     def lozz(self, data, labels):

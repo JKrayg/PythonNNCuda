@@ -137,5 +137,7 @@ class Dense(Layer):
             
             self.prev.getGradients(gradWrtPreAct, data)
 
-    def updateWeights(self, o: Optimizer):
-        self.weights = o.weightsUpdate(self)
+    def updateParams(self, o: Optimizer):
+        w, b = o.update(self)
+        self.weights = w
+        self.bias = b
